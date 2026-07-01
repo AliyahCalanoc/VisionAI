@@ -1,8 +1,18 @@
-import { useCameraPermissions } from "expo-camera";
+import { CameraView, useCameraPermissions } from "expo-camera";
+import { useRef, useState } from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
 export default function CameraScreen() {
   const [permission, requestPermission] = useCameraPermissions();
+  const cameraRef = useRef(null);
+  const [photo, setPhoto] = useState(null);
+
+  async function takePicture() {
+    if (!cameraRef.current) return;
+    const result = await cameraRef.current.takePictureAsync({ quality: 0.7 });
+    setPhoto(result.uri);
+    console.log(result.uri); // temporary — confirms capture works before Phase 3
+  }
 
   if (!permission) {
     // Permission status is still loading
@@ -25,12 +35,29 @@ export default function CameraScreen() {
     );
   }
 
-  // Permission granted — camera UI goes here
-  return <View style={styles.container} />;
+  return (
+    <View style={styles.container}>
+      <CameraView ref={cameraRef} style={styles.camera} facing="back" />
+      <TouchableOpacity style={styles.captureButton} onPress={takePicture}>
+        <Text style={styles.captureButtonText}>Capture</Text>
+      </TouchableOpacity>
+    </View>
+  );
 }
 
 const styles = StyleSheet.create({
   container: { flex: 1 },
+  camera: { flex: 1 },
+  captureButton: {
+    position: "absolute",
+    bottom: 40,
+    alignSelf: "center",
+    backgroundColor: "#2E5BBA",
+    paddingVertical: 14,
+    paddingHorizontal: 36,
+    borderRadius: 30,
+  },
+  captureButtonText: { color: "#fff", fontWeight: "bold", fontSize: 16 },
   permissionContainer: {
     flex: 1,
     justifyContent: "center",
