@@ -2,20 +2,24 @@ import { CameraView, useCameraPermissions } from "expo-camera";
 import { useRef, useState } from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
-export default function CameraScreen() {
+export default function CameraScreen({ navigation }) {
   const [permission, requestPermission] = useCameraPermissions();
   const cameraRef = useRef(null);
   const [photo, setPhoto] = useState(null);
+  const [isCameraReady, setIsCameraReady] = useState(false);
 
   async function takePicture() {
-    if (!cameraRef.current) return;
-    const result = await cameraRef.current.takePictureAsync({ quality: 0.7 });
-    setPhoto(result.uri);
-    console.log(result.uri); // temporary — confirms capture works before Phase 3
+    if (!cameraRef.current || !isCameraReady) return;
+    try {
+      const result = await cameraRef.current.takePictureAsync({ quality: 0.7 });
+      setPhoto(result.uri);
+      navigation.navigate("Preview", { photoUri: result.uri });
+    } catch (err) {
+      console.log("Capture failed:", err);
+    }
   }
 
   if (!permission) {
-    // Permission status is still loading
     return <View style={styles.container} />;
   }
 
@@ -37,9 +41,20 @@ export default function CameraScreen() {
 
   return (
     <View style={styles.container}>
-      <CameraView ref={cameraRef} style={styles.camera} facing="back" />
-      <TouchableOpacity style={styles.captureButton} onPress={takePicture}>
-        <Text style={styles.captureButtonText}>Capture</Text>
+      <CameraView
+        ref={cameraRef}
+        style={styles.camera}
+        facing="back"
+        onCameraReady={() => setIsCameraReady(true)}
+      />
+      <TouchableOpacity
+        style={[styles.captureButton, !isCameraReady && { opacity: 0.5 }]}
+        onPress={takePicture}
+        disabled={!isCameraReady}
+      >
+        <Text style={styles.captureButtonText}>
+          {isCameraReady ? "Capture" : "Loading..."}
+        </Text>
       </TouchableOpacity>
     </View>
   );
