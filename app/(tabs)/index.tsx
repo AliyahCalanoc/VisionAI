@@ -1,7 +1,11 @@
-import { NavigationContainer, NavigationIndependentTree } from "@react-navigation/native";
+import {
+  NavigationContainer,
+  NavigationIndependentTree,
+} from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import CameraScreen from "../../CameraScreen";
 import PreviewScreen from "../../PreviewScreen";
+import ResultScreen from "../../ResultScreen";
 
 const Stack = createNativeStackNavigator();
 
@@ -12,6 +16,7 @@ export default function Index() {
         <Stack.Navigator screenOptions={{ headerShown: false }}>
           <Stack.Screen name="Camera" component={CameraScreen} />
           <Stack.Screen name="Preview" component={PreviewScreen} />
+          <Stack.Screen name="Result" component={ResultScreen} />
         </Stack.Navigator>
       </NavigationContainer>
     </NavigationIndependentTree>

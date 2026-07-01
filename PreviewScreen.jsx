@@ -1,7 +1,29 @@
 import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { imageToBase64 } from "./lib/gemini";
+
+const ANALYSIS_PROMPT = `
+Analyze this image. Identify:
+1. Objects - list the distinct physical objects you see
+2. Context - briefly describe the setting or scene
+3. Activities - what activity appears to be happening, if any
+4. Recommendations - one practical suggestion based on the scene
+
+Respond ONLY with valid JSON in this exact shape, no extra text:
+{
+  "objects": ["...", "..."],
+  "context": "...",
+  "activities": "...",
+  "recommendations": "..."
+}
+`;
 
 export default function PreviewScreen({ route, navigation }) {
   const { photoUri } = route.params;
+
+  async function handleAnalyze() {
+    const base64Image = await imageToBase64(photoUri);
+    navigation.navigate("Result", { base64Image });
+  }
 
   return (
     <View style={styles.container}>
@@ -13,10 +35,7 @@ export default function PreviewScreen({ route, navigation }) {
         >
           <Text style={styles.buttonText}>Retake</Text>
         </TouchableOpacity>
-        <TouchableOpacity
-          style={styles.analyzeButton}
-          onPress={() => navigation.navigate("Result", { photoUri })}
-        >
+        <TouchableOpacity style={styles.analyzeButton} onPress={handleAnalyze}>
           <Text style={styles.buttonText}>Analyze</Text>
         </TouchableOpacity>
       </View>
